@@ -7,11 +7,27 @@
     <title>streamlit-component-x</title>
     <script src="./streamlit-component-lib.js"></script>
     <script src="./main.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js" charset="utf-8"></script>
     <link rel="stylesheet" href="./style.css" />
   </head>
   <body>
     <div id="root"></div>
     <div id="container">got it working</div>
+    <div id="myDiv"></div>
+    <script>
+      data = [{
+
+type: "treemap",
+
+labels: ["Eve", "Cain", "Seth", "Enos", "Noam", "Abel", "Awan", "Enoch", "Azura"],
+
+parents: ["", "Eve", "Eve", "Seth", "Seth", "Eve", "Eve", "Awan", "Eve" ]
+
+}]
+
+
+Plotly.newPlot('myDiv', data)
+    </script>
     <script type="module">
 
       import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";

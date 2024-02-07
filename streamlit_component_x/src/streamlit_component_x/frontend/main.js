@@ -14,10 +14,11 @@ function sendValue(value) {
  */
 function onRender(event) {
   // Only run the render code the first time the component is loaded.
+  console.log("rendering")
   if (!window.rendered) {
     // You most likely want to get the data passed in like this
     // const {input1, input2, input3} = event.detail.args
-
+    sendValue(["finished","code"])
     // You'll most likely want to pass some data back to Python like this
     // sendValue({output1: "foo", output2: "bar"})
     window.rendered = true

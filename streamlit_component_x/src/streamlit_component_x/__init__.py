@@ -30,7 +30,14 @@ def main():
     value = streamlit_component_x()
 
     st.write(value)
+    print(value)
 
+def example():
+    st.write("## Example")
+    value = streamlit_component_x()
+
+    st.write(value)
+    print(value)
 
 if __name__ == "__main__":
     main()
