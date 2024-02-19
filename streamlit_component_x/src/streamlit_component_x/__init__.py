@@ -7,37 +7,45 @@ import streamlit.components.v1 as components
 # Tell streamlit that there is a component called streamlit_component_x,
 # and that the code to display that component is in the "frontend" folder
 frontend_dir = (Path(__file__).parent / "frontend").absolute()
+print("frontend dir is ",frontend_dir)
 _component_func = components.declare_component(
 	"streamlit_component_x", path=str(frontend_dir)
 )
+# basic structure for treemap
+
+labels= ["Eve", "Cain", "Seth", "Enos", "Noam", "Abel", "Awan", "Enoch", "Azura"]
+parents= ["", "Eve", "Eve", "Seth", "Seth", "Eve", "Eve", "Awan", "Eve" ]
+
 
 # Create the python function that will be called
-def streamlit_component_x(
+def streamlit_component_x(data,
     key: Optional[str] = None,
 ):
     """
     Add a descriptive docstring
     """
     component_value = _component_func(
+        data=data,
         key=key,
     )
 
     return component_value
 
 
-def main():
-    st.write("## Example")
-    value = streamlit_component_x()
+def main(data):
+    st.write("## Example main")
+    value = streamlit_component_x(data)
 
     st.write(value)
     print(value)
 
-def example():
-    st.write("## Example")
-    value = streamlit_component_x()
+def example(data):
+    print("inside of example")
+    st.write("## Example imported")
+    value = streamlit_component_x(data = data)
 
     st.write(value)
-    print(value)
+    print("value is",value)
 
 if __name__ == "__main__":
-    main()
+    main([labels,parents])

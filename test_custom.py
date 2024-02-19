@@ -2,12 +2,12 @@ import streamlit as st
 import random
 import streamlit.elements.image as st_image
 from PIL import Image
+# get the custom component
 from streamlit_component_x.src.streamlit_component_x import example
 # Add some test code to play with the component while it's in development.
 # During development, we can run this just as we would any other Streamlit
 # app: `$ streamlit run my_component/example.py`
 
-st.subheader("Component with constant args")
 import pandas as pd
 import numpy as np
 
@@ -18,7 +18,8 @@ parents= ["", "Eve", "Eve", "Seth", "Seth", "Eve", "Eve", "Awan", "Eve" ]
 
 # Create an instance of our component with a constant `name` arg, and
 # print its output value.
-example()
+print("running example from test_custom")
+example([labels,parents])
 # selected = my_component([labels,parents],key="fixed")
 # st.markdown(selected)
 
