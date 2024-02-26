@@ -39,21 +39,21 @@ function onRender(event){
   let t = [{ type: "treemap", labels: treemapData
   [0], parents: treemapData[1] }]
   Plotly.newPlot("gd", t)
-  let l = document.querySelector("#selected") 
   gd.on("plotly_click", (e => {
     console.log(e)
     let t = e.points[0].label
-    l.innerHTML = t
     console.log("dispatched", t)
     Streamlit.setComponentValue(t)
   }))
 
-
+  let bb = gd.getBoundingClientRect()
+  console.log(bb)
   // We tell Streamlit to update our frameHeight after each render event, in
   // case it has changed. (This isn't strictly necessary for the example
   // because our height stays fixed, but this is a low-cost function, so
   // there's no harm in doing it redundantly.)
-  Streamlit.setFrameHeight(height=2000)
+  // set height to only this much plus a buffer
+  Streamlit.setFrameHeight(bb.height)
   completed=true
 }
 
