@@ -39,10 +39,10 @@ def main(data):
     st.write(value)
     print(value)
 
-def example(data):
+def example(data,key=None):
     print("inside of example",data)
     st.write("## Example imported")
-    value = streamlit_component_x(data = data)
+    value = streamlit_component_x(data = data,key=key)
 
     st.write(value)
     print("value is",value)
