@@ -45,6 +45,7 @@ function onRender(event){
     let t = e.points[0].label
     l.innerHTML = t
     console.log("dispatched", t)
+    Streamlit.setComponentValue(t)
   }))
 
 
@@ -52,7 +53,7 @@ function onRender(event){
   // case it has changed. (This isn't strictly necessary for the example
   // because our height stays fixed, but this is a low-cost function, so
   // there's no harm in doing it redundantly.)
-  Streamlit.setFrameHeight()
+  Streamlit.setFrameHeight(height=2000)
   completed=true
 }
 
