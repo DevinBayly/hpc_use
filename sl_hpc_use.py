@@ -1,12 +1,21 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-from plotly import graph_objects as go
 import json
 import sys
-sys.path.append("./my_component")
-from my_component import my_component
+import random
+import streamlit.elements.image as st_image
+from PIL import Image
+# get the custom component
+from streamlit_component_x.src.streamlit_component_x import example
+# Add some test code to play with the component while it's in development.
+# During development, we can run this just as we would any other Streamlit
+# app: `$ streamlit run my_component/example.py`
+
+
+labels= ["Eve", "Cain", "Seth", "Enos", "Noam", "Abel", "Awan", "Enoch", "Azura"]
+parents= ["", "Eve", "Eve", "Seth", "Seth", "Eve", "Eve", "Awan", "Eve" ]
+
 
 concept_names, concept_counts, concept_parents = json.load(open('found_concepts.json', "r"))
 
@@ -26,14 +35,6 @@ for _ in range(3):
             # print(concept_name)
             pass
 
-# fig = go.Figure(go.Treemap(
-#     labels = list(concept_names),
-#     parents = list(concept_parents),
-#     values = list(concept_counts),
-#     textinfo = 'label+value',
-#     maxdepth = 2
-# ))
-# skip this and instead use the custom one built to make callbacks work
 
 """
 # Publications by Users of University of Arizona HPC
@@ -49,11 +50,15 @@ You are encouraged to full screen the tree map below.
 #fig.update_traces(marker_cornerradius=5)
 # st.plotly_chart(fig)
 
-res = my_component([list(concept_names),list(concept_parents)],key="fixed")
+print("running example from test_custom")
+res = example([list(concept_names),list(concept_parents)],key="fixed")
 
-st.markdown(res)
-df = pd.read_csv("works.csv")
-inds = df.concepts.str.contains(str(res),na=False)
-# print(inds)
-sub = df[inds].head(n=20)
-st.table(sub)
+if res and 'finished' not in res:
+    st.markdown(res)
+    df = pd.read_csv("works.csv")
+    print(df.shape,res)
+    inds = df.concepts.str.contains(str(res),na=False)
+    # print(inds)
+    sub = df[inds].head(n=20)
+    print(sub)
+    st.table(sub)
