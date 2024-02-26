@@ -43,9 +43,8 @@ def example(data,key=None):
     print("inside of example",data)
     st.write("## Example imported")
     value = streamlit_component_x(data = data,key=key)
-
-    st.write(value)
     print("value is",value)
+    return value
 
 if __name__ == "__main__":
     main([labels,parents])
