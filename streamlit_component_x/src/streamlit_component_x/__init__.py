@@ -40,7 +40,7 @@ def main(data):
     print(value)
 
 def example(data):
-    print("inside of example")
+    print("inside of example",data)
     st.write("## Example imported")
     value = streamlit_component_x(data = data)
 

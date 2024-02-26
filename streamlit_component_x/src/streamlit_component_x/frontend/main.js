@@ -14,6 +14,9 @@ function onRender(event){
   // Get the RenderData from the event
   if (completed) return
   const data = event.detail
+  // weird nesting
+  let treemapData = data.args.data
+  console.log("data is",data)
 
   // Maintain compatibility with older versions of Streamlit that don't send
   // a theme object.
@@ -33,35 +36,16 @@ function onRender(event){
 
   // Show "Hello, name!" with a non-breaking space afterwards.
   let gd = document.querySelector("#gd")
-  let customevent = new CustomEvent("start", { "detail": name })
-  if (gd) {
-    console.log("adding listener")
-    gd.addEventListener("send", () => {
-
-      let sel = document.querySelector("#selected")
-      if (sel) Streamlit.setComponentValue(sel.innerHTML)
-    })
-    console.log("dispatching from javascript")
-    gd.dispatchEvent(customevent)
-    gd.addEventListener("start",
-      (
-        function (e) {
-          console.log("this ran ", e)
-          let t = [{ type: "treemap", labels: e.detail[0], parents: e.detail[1] }]
-          Plotly.newPlot("gd", t)
-          let l = document.querySelector("#selected"), n = document.querySelector("#gd")
-          n.on("plotly_click", (e => {
-            console.log(e)
-            let t = e.points[0].label
-            l.innerHTML = t
-            let o = new CustomEvent("send", { detail: t })
-            n.dispatchEvent(o)
-            console.log("dispatched", o)
-          }))
-        }
-      )
-    )
-  }
+  let t = [{ type: "treemap", labels: treemapData
+  [0], parents: treemapData[1] }]
+  Plotly.newPlot("gd", t)
+  let l = document.querySelector("#selected") 
+  gd.on("plotly_click", (e => {
+    console.log(e)
+    let t = e.points[0].label
+    l.innerHTML = t
+    console.log("dispatched", t)
+  }))
 
 
   // We tell Streamlit to update our frameHeight after each render event, in
@@ -82,3 +66,37 @@ Streamlit.setComponentReady()
 // Finally, tell Streamlit to update our initial height. We omit the
 // `height` parameter here to have it default to our scrollHeight.
 Streamlit.setFrameHeight()
+
+// // The `Streamlit` object exists because our html file includes
+// // `streamlit-component-lib.js`.
+// // If you get an error about "Streamlit" not being defined, that
+// // means you're missing that file.
+
+// function sendValue(value) {
+//   Streamlit.setComponentValue(value)
+// }
+
+// /**
+//  * The component's render function. This will be called immediately after
+//  * the component is initially loaded, and then again every time the
+//  * component gets new data from Python.
+//  */
+// function onRender(event) {
+//   // Only run the render code the first time the component is loaded.
+//   console.log("rendering")
+//   if (!window.rendered) {
+//     // You most likely want to get the data passed in like this
+//     // const {input1, input2, input3} = event.detail.args
+//     sendValue(["finished","code"])
+//     // You'll most likely want to pass some data back to Python like this
+//     // sendValue({output1: "foo", output2: "bar"})
+//     window.rendered = true
+//   }
+// }
+
+// // Render the component whenever python send a "render event"
+// Streamlit.events.addEventListener(Streamlit.RENDER_EVENT, onRender)
+// // Tell Streamlit that the component is ready to receive events
+// Streamlit.setComponentReady()
+// // Render with the correct height, if this is a fixed-height component
+// Streamlit.setFrameHeight(800)
