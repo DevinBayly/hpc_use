@@ -36,7 +36,7 @@ function onRender(event){
 
   // Show "Hello, name!" with a non-breaking space afterwards.
   let gd = document.querySelector("#gd")
-  let t = [{ type: "treemap", labels: treemapData
+  let t = [{width:800,height:800, type: "treemap", labels: treemapData
   [0], parents: treemapData[1] }]
   Plotly.newPlot("gd", t)
   gd.on("plotly_click", (e => {
