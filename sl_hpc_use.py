@@ -17,14 +17,26 @@ import requests as rq
 # https://github.com/DevinBayly/vis-sieve/raw/1b09d0bcc7851eeb63524c4e730499eba59cb7ef/openalex_code/hear_me_ROR.ipynb
 # TODO add a progress bar to the tool
 
+headers = {"mailto":"baylyd@arizona.edu"}
 
 @st.cache_data
-def results_per_year(ror,year,qlim=2):
+def get_researcher_id(first,last,ror):
+    res = rq.get(f"https://api.openalex.org/authors?filter=display_name.search:{first.lower()} {last.lower()},affiliations.institution.ror:{ror}",headers=headers)
+    data = res.json()["results"]
+    # assume the first hit is the best id
+    # TODO put in test for making sure that the system can announce which name failed or broke
+
+    if len(data)> 0:
+        return Path(data[0]["id"]).stem
+    else:
+        return -1
+
+@st.cache_data
+def results_per_year(author_id,ror,year,qlim=2):
     # progress bar
     pubs_per_year_prog = st.progress(0,text=f"Starting query for year {year}, {qlim} in progress")
     all_res = []
-    headers = {"mailto":"baylyd@arizona.edu"}
-    url =f"https://api.openalex.org/works?filter=publication_year:{year},institutions.ror:{ror}&cursor=*&per-page=200"
+    url =f"https://api.openalex.org/works?filter=authorships.author.id:{author_id},publication_year:{year},institutions.ror:{ror}&cursor=*&per-page=200"
     print(url)
     res = rq.get(url,headers=headers)
     data = res.json()
@@ -34,8 +46,9 @@ def results_per_year(ror,year,qlim=2):
     query =1
     pubs_per_year_prog.progress(1/qlim, text=f'Works total {data["meta"]["count"]}, {qlim} in progress')
 
+
     while query < qlim:
-        res = rq.get(f"https://api.openalex.org/works?filter=publication_year:{year},institutions.ror:{ror}&cursor={cursor}&per-page=200")
+        res = rq.get(f"https://api.openalex.org/works?filter=authorships.author.id:{author_id},publication_year:{year},institutions.ror:{ror}&cursor={cursor}&per-page=200")
         data = res.json()
         all_res.extend(data["results"])
         cursor = data["meta"].get("next_cursor",None)
@@ -154,11 +167,20 @@ Joshua, Levine""")
         print(ror_id)
         # TODO set up checking for all the dependent inputs
         # TODO add a parameter that will tell us how many pages of results we want to gather from each year, for demo we can set it to 1 or 2
+        # TODO set up the progress bars for this section
         year = start_date
-        qres = results_per_year(ror_id,year,qlim= queries_per_year)
-        # st.write(qres)
-        #print(qres)
-        Path(f"{year}_{ror_id}.json").write_text(json.dumps(qres))
+        # go through the list of the researchers
+        for name in names.strip().split("\n"):
+            first,last = name.split(",")
+            print(first,last)
+            author_id = get_researcher_id(first,last,ror_id)
+            if author_id ==-1:
+                print("no id for ",first,last)
+                continue
+            qres = results_per_year(author_id,ror_id,year,qlim= queries_per_year)
+            # st.write(qres)
+            #print(qres)
+            Path(f"{author_id}_{year}_{ror_id}.json").write_text(json.dumps(qres))
     # this code is from the vis sieve project 
 
 #if res and 'finished' not in res:
