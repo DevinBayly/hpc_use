@@ -45,6 +45,25 @@ function onRender(event){
     console.log("dispatched", t)
     Streamlit.setComponentValue(t)
   }))
+  let btn = document.querySelector("button")
+  if (btn) {
+
+  btn.onclick = () => {
+    let update = {
+      width:1920,
+      height:1080
+    }
+    Plotly.relayout("gd", update);
+    let bb = gd.getBoundingClientRect()
+    console.log(bb)
+    // We tell Streamlit to update our frameHeight after each render event, in
+    // case it has changed. (This isn't strictly necessary for the example
+    // because our height stays fixed, but this is a low-cost function, so
+    // there's no harm in doing it redundantly.)
+    // set height to only this much plus a buffer
+    Streamlit.setFrameHeight(bb.height)
+  }
+  }
 
   let bb = gd.getBoundingClientRect()
   console.log(bb)

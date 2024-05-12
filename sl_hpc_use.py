@@ -1,4 +1,5 @@
 import streamlit as st
+from pathlib import Path
 import pandas as pd
 import numpy as np
 import json
@@ -6,9 +7,34 @@ import sys
 import random
 import streamlit.elements.image as st_image
 import requests as rq
+import seaborn as sb
 from PIL import Image
 # get the custom component
 from streamlit_component_x.src.streamlit_component_x import example
+
+# code that helps us gather an instutions data per a year
+import requests as rq
+# https://github.com/DevinBayly/vis-sieve/raw/1b09d0bcc7851eeb63524c4e730499eba59cb7ef/openalex_code/hear_me_ROR.ipynb
+# TODO add a progress bar to the tool
+def results_per_year(ror,year,qlim=2):
+    all_res = []
+    headers = {"mailto":"baylyd@arizona.edu"}
+    res = rq.get(f"https://api.openalex.org/works?filter=publication_year:{year},institutions.ror:{ror}&cursor=*&per-page=200",headers=headers)
+    data = res.json()
+    print(data["meta"])
+    all_res.extend(data["results"])
+    cursor = data["meta"]["next_cursor"]
+    query =1
+    while query < qlim:
+        res = rq.get(f"https://api.openalex.org/works?filter=publication_year:{year},institutions.ror:{ror}&cursor={cursor}&per-page=200")
+        data = res.json()
+        all_res.extend(data["results"])
+        cursor = data["meta"].get("next_cursor",None)
+        query+=1
+        print(query)
+    return all_res
+
+
 # Add some test code to play with the component while it's in development.
 # During development, we can run this just as we would any other Streamlit
 # app: `$ streamlit run my_component/example.py`
@@ -52,14 +78,35 @@ parents= ["", "Eve", "Eve", "Seth", "Seth", "Eve", "Eve", "Awan", "Eve" ]
 ## st.plotly_chart(fig)
 #
 #print("running example from test_custom")
+
+
+# Here's the main application view 
+
+
 res = example([list(labels),list(parents)],key="fixed")
+
+# standard metrics calculated 
+# although they are defined later this is just to make sure they are able to update the metrics shown
+# TODO think about how to maek the bar charts interactions also update things like the tree map
+
+# bar chart section
+# show the trend of the publication submissions over years
+
 # making a sidebar
 # "with" notation
 with st.sidebar:
-    uploaded_file = st.file_uploader("Upload a list of Cluster User Names")
-    if uploaded_file is not None:
-        text = open(uploaded_file).read_lines()
-        st.write(text)
+    st.write("""## Fill in the following elements to submit an publication impact query for a set of users""")
+    #uploaded_file = st.file_uploader("Upload a list of Cluster User Names")
+    #if uploaded_file is not None:
+    #    text = open(uploaded_file).read_lines()
+    #    st.write(text)
+    names = st.text_area("First name, Last name, **One per line**",
+    """Chris, Reidy
+Devin, Bayly
+Ben,Kruse
+Nirav, Merchant
+Tyson, Swetnam
+Joshua, Levine""")
 
     name = st.text_input("Enter the Institution Name", "University of Arizona")
     res = rq.get(f"https://api.ror.org/organizations?query={name}").json()
@@ -68,6 +115,8 @@ with st.sidebar:
         if items:
             best_res = items[0]
             st.write(best_res["id"])
+            ror_id = Path(best_res["id"]).stem
+            print(ror_id)
 
     
     #specifying the range in time that we want to inspect
@@ -76,6 +125,27 @@ with st.sidebar:
         options=list(range(2016,2023)),
         value=(2016, 2017))
     st.write("You selected years between", start_date, "and", end_date)
+    # limiting the queries to a number
+    queries_per_year = st.select_slider(
+        "Select the number of queries per year",
+        options=list(range(1,100)),
+        value=(1))
+    st.write("You selected ", queries_per_year," per year")
+
+
+    # go get the information, save it to disk so that it's cached though 
+    # set a button here so that it doesn't try this each time we reload page 
+
+    btn = st.button("Submit", type="primary")
+    if btn:
+        print(ror_id)
+        # TODO set up checking for all the dependent inputs
+        # TODO add a parameter that will tell us how many pages of results we want to gather from each year, for demo we can set it to 1 or 2
+        qres = results_per_year(ror_id,start_date,qlim= queries_per_year)
+        # st.write(qres)
+        print(qres)
+    # this code is from the vis sieve project 
+
 #if res and 'finished' not in res:
 #    st.markdown(res)
 #    df = pd.read_csv("works.csv")
