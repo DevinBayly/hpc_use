@@ -40,14 +40,14 @@ function onRender(event){
   let parentBB = gd.parentElement.getBoundingClientRect()
   let t = [{type: "treemap", labels: treemapData[0], parents: treemapData[1] }]
   var layout = {
-    autosize: true,
-    margin: {
-      l: 0,
-      r: 0,
-      b: 0,
-      t: 0,
-      pad: 4
-    }
+     width:450,
+     margin: {
+       l: 0,
+       r: 0,
+       b: 0,
+       t: 0,
+       pad: 4
+     }
   };
   Plotly.newPlot("gd", t,layout)
   // TODO set up method for catching the events when we click to go back to a previuos level
@@ -84,7 +84,6 @@ function onRender(event){
   // // because our height stays fixed, but this is a low-cost function, so
   // // there's no harm in doing it redundantly.)
   // // set height to only this much plus a buffer
-  Streamlit.setFrameWidth(bb.width)
   Streamlit.setFrameHeight(bb.height)
   completed=true
 }
