@@ -213,6 +213,12 @@ year_lists = [years.index.tolist(),years.values.tolist()]
 print(year_lists)
 with c2:
     bar_res = barchart(year_lists)
+
+# make the small multiples chart showing the counts of the different fields and things
+
+with c3:
+    pass
+
 with t1:
     # write total publications
     total = metrics_data.shape[0]
@@ -242,8 +248,8 @@ with t5:
     counts = pub_type_counts.values.tolist()
     print(types)
     print(counts)
-    markdown_res = "\n".join([f"{t} **{c}**" for t,c in zip(types,counts)])
-    st.write(markdown_res)
+    for t,c in zip(types,counts):
+        st.write(f'**{t}** **{c}**')
 
 # standard metrics calculated 
 # although they are defined later this is just to make sure they are able to update the metrics shown

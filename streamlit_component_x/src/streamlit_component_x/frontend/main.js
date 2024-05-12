@@ -36,9 +36,20 @@ function onRender(event){
 
   // Show "Hello, name!" with a non-breaking space afterwards.
   let gd = document.querySelector("#gd")
-  let t = [{width:800,height:800, type: "treemap", labels: treemapData
-  [0], parents: treemapData[1] }]
-  Plotly.newPlot("gd", t)
+  // get the parent size 
+  let parentBB = gd.parentElement.getBoundingClientRect()
+  let t = [{type: "treemap", labels: treemapData[0], parents: treemapData[1] }]
+  var layout = {
+    autosize: true,
+    margin: {
+      l: 0,
+      r: 0,
+      b: 0,
+      t: 0,
+      pad: 4
+    }
+  };
+  Plotly.newPlot("gd", t,layout)
   // TODO set up method for catching the events when we click to go back to a previuos level
   gd.on("plotly_click", (e => {
     console.log(e)
@@ -67,12 +78,13 @@ function onRender(event){
   }
 
   let bb = gd.getBoundingClientRect()
-  console.log(bb)
-  // We tell Streamlit to update our frameHeight after each render event, in
-  // case it has changed. (This isn't strictly necessary for the example
-  // because our height stays fixed, but this is a low-cost function, so
-  // there's no harm in doing it redundantly.)
-  // set height to only this much plus a buffer
+  // console.log(bb)
+  // // We tell Streamlit to update our frameHeight after each render event, in
+  // // case it has changed. (This isn't strictly necessary for the example
+  // // because our height stays fixed, but this is a low-cost function, so
+  // // there's no harm in doing it redundantly.)
+  // // set height to only this much plus a buffer
+  Streamlit.setFrameWidth(bb.width)
   Streamlit.setFrameHeight(bb.height)
   completed=true
 }

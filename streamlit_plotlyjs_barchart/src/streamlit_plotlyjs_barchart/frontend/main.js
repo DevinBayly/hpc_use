@@ -41,8 +41,15 @@ function onRender(event){
 
 var layout = {
 
-
-  showlegend: false
+  autosize:true,
+  showlegend: false,
+    margin: {
+      l: 50,
+    r: 50,
+    b: 100,
+    t: 10,
+    pad: 4
+    }
 
 };
 
