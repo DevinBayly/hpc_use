@@ -41,7 +41,7 @@ def main(data):
 
 def example(data,key=None):
     print("inside of example",data)
-    st.write("### Topic Treemap")
+    st.write("### Interactive Topic Treemap")
     value = streamlit_component_x(data = data,key=key)
     print("value is",value)
     return value
