@@ -1,5 +1,4 @@
 import streamlit as st
-from tqdm import tqdm
 # this is the open alex import
 # TODO make sure to cite this package
 from pyalex import Concepts
