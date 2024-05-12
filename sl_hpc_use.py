@@ -18,26 +18,42 @@ from PIL import Image
 from streamlit_component_x.src.streamlit_component_x import example as treemap
 from streamlit_plotlyjs_barchart.src.streamlit_plotlyjs_barchart import example as barchart
 
+st.set_page_config(layout="wide")
 # code that helps us gather an instutions data per a year
 # https://github.com/DevinBayly/vis-sieve/raw/1b09d0bcc7851eeb63524c4e730499eba59cb7ef/openalex_code/hear_me_ROR.ipynb
 # TODO add a progress bar to the tool
 
 headers = {"mailto":"baylyd@arizona.edu"}
 
+def key_val_sort(a):
+    return a[1]
+
+def increment_dict(name,dct):
+    val = dct.get(name,0) +1
+    dct[name] = val
 # Working with concepts, original code  by Ben Kruse, modifications for topics by Devin Bayly
 @st.cache_data
 def conceptualize(df):
     pairs=[]
+    topics={}
+    subfields={}
+    fields={}
+    domains={}
     # 
     for i in range(len(df)):
         published_work_name = df.iloc[i]["display_name"]
         for topic in df['topics'].iloc[i]:
             # we add the child to the label, and the parent to the parents
             topic_name = topic["display_name"]
+            increment_dict(topic_name,topics)
             subfield_name = topic["subfield"]["display_name"]
+            increment_dict(subfield_name,subfields)
             field_name = topic["field"]["display_name"]
+            increment_dict(field_name,fields)
             domain_name = topic["domain"]["display_name"]
-            pairs.append((published_work_name,topic_name))
+            increment_dict(domain_name,domains)
+            # removing the final layer of the treemap showing the individual works, this should be expressed in a different graph
+            # pairs.append((published_work_name,topic_name))
             pairs.append((
                 topic_name,subfield_name
             ))
@@ -55,7 +71,9 @@ def conceptualize(df):
     # run a set simplification on the pairs at the end so that we don't have duplicate matches
     dedup_pairs = list(set(pairs))
     label_names,parent_names = map(list, zip(*dedup_pairs))
-    return label_names,parent_names
+    return label_names,parent_names,[topics,subfields,fields,domains]
+
+
 @st.cache_data
 def make_data_frame(work_jsons):
     # handles a list of jsons that we construct a dataframe from
@@ -110,8 +128,6 @@ def results_per_year(author_id,ror,year,qlim=2):
 # app: `$ streamlit run my_component/example.py`
 
 
-labels= ["Eve", "Cain", "Seth", "Enos", "Noam", "Abel", "Awan", "Enoch", "Azura"]
-parents= ["", "Eve", "Eve", "Seth", "Seth", "Eve", "Eve", "Awan", "Eve" ]
 
 
 #concept_names, concept_counts, concept_parents = json.load(open('found_concepts.json', "r"))
@@ -150,7 +166,6 @@ parents= ["", "Eve", "Eve", "Seth", "Seth", "Eve", "Eve", "Awan", "Eve" ]
 #print("running example from test_custom")
 
 
-# Here's the main application view 
 # show just a demonstration, and override these after the system has run
 # especially if there's already available jsons
 # NOTE bidirectional updates are possible between charts just because the entire app is reloaded for elements that have their keys update
@@ -158,8 +173,16 @@ jsons = sorted(Path().glob("works*.json"))
 publications_dataframe = make_data_frame(jsons)
 # ensure that there's a string searchable topic column to filter from interactions with the treemap
 publications_dataframe["topics_str"] = publications_dataframe.topics.apply(json.dumps)
-# here's where we would put in our modifications from the treemap
 
+# Here's the main application view 
+st.write("## Cluster Publication Impact Explorer")
+# make a holder for the top 3 columns
+# holder for the info at the top
+h1 = st.container()
+t1,t2,t3,t4,t5 = h1.columns(5)
+h2 = st.container()
+c1,c2,c3 = h2.columns(3)
+h3 = st.container()
 
 
 # TODO consider an option that clears all the .jsons acculumated out
@@ -167,18 +190,20 @@ publications_dataframe["topics_str"] = publications_dataframe.topics.apply(json.
 
 
 # Treemap section
-
-
-
 # test out with the names and parents being passed
-concept_names,concept_parents = conceptualize(publications_dataframe)
-tm_selected = treemap([concept_names,concept_parents],key="fixed")
+concept_names,concept_parents,counts = conceptualize(publications_dataframe)
+# control placing the custom element in the second holder
+with c1:
+    tm_selected = treemap([concept_names,concept_parents],key="fixed")
+    print("tm selected is ",tm_selected)
 
 # make a version of the data that we can filter down on if the treemap has been modified
+if tm_selected == ["finished","code"]:
+    metrics_data = publications_dataframe
+else:
+    metrics_data = publications_dataframe[publications_dataframe.topics_str.str.contains(tm_selected,na=False)]
 
-metrics_data = publications_dataframe[publications_dataframe.topics_str.str.contains(tm_selected,na=False)]
-
-
+# TODO make the metrics and bar update when we reset by clicking back up to the top also
 # make the bar chart, based on Ben's code in pub_year.ipynb
 years = metrics_data['publication_year'].value_counts().sort_index()
 print("the years data is")
@@ -186,16 +211,49 @@ print(years.head())
 # access underlying array to convert
 year_lists = [years.index.tolist(),years.values.tolist()]
 print(year_lists)
-bar_res = barchart(year_lists)
-# simple change
+with c2:
+    bar_res = barchart(year_lists)
+with t1:
+    # write total publications
+    total = metrics_data.shape[0]
+    st.write(f"Total Publications")
+    st.write(f"## **{total}**")
+with t2:
+    # gather the field information
+    citations = metrics_data.cited_by_count.sum()
+    st.write(f"Total Cited By")
+    st.write(f"## **{citations}**")
+with t3:
+    # gather how many references used
+    references = metrics_data.referenced_works_count.sum()
+    st.write(f"Total References used")
+    st.write(f"## **{references}**")
+with t4:
+    grants_total = pd.DataFrame(metrics_data.grants.values.tolist()).count().sum()
+    st.write("Total Research Grants")
+    st.write(F"## **{grants_total}**")
 
 
-
-st.write(metrics_data.head())
-
+with t5:
+    # include the counts of the article types
+    pub_type_counts = metrics_data.type.value_counts()
+    st.write(f"Publication Types")
+    types= pub_type_counts.index.tolist()
+    counts = pub_type_counts.values.tolist()
+    print(types)
+    print(counts)
+    markdown_res = "\n".join([f"{t} **{c}**" for t,c in zip(types,counts)])
+    st.write(markdown_res)
 
 # standard metrics calculated 
 # although they are defined later this is just to make sure they are able to update the metrics shown
+
+
+# at the lowest show the most fine grained data
+with h3:
+    st.write(metrics_data.head())
+
+
 # TODO think about how to maek the bar charts interactions also update things like the tree map
 
 # bar chart section
@@ -219,13 +277,13 @@ Tyson, Swetnam
 Joshua, Levine""")
 
     name = st.text_input("Enter the Institution Name", "University of Arizona")
-    res = rq.get(f"https://api.ror.org/organizations?query={name}").json()
-    if res:
-        items = res.get("items")
+    ror_res = rq.get(f"https://api.ror.org/organizations?query={name}").json()
+    if ror_res:
+        items = ror_res.get("items")
         if items:
-            best_res = items[0]
-            st.write(best_res["id"])
-            ror_id = Path(best_res["id"]).stem
+            best_ror_res = items[0]
+            st.write(best_ror_res["id"])
+            ror_id = Path(best_ror_res["id"]).stem
             print(ror_id)
 
     
