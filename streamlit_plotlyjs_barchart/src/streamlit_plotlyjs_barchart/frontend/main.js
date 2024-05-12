@@ -38,7 +38,16 @@ function onRender(event){
   let gd = document.querySelector("#gd")
   // for some reason the width and height part here mess up the drawing
   let t = [{ type: "bar", x:barData[0],y:barData[1]}]
-  Plotly.newPlot("gd", t)
+
+var layout = {
+
+
+  showlegend: false
+
+};
+
+
+  Plotly.newPlot("gd", t,layout,{staticPlot:true})
   gd.on("plotly_click", (e => {
     console.log(e)
     // let t = e.points[0].label
