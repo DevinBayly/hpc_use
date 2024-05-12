@@ -16,7 +16,7 @@ function onRender(event){
   const data = event.detail
   // weird nesting
   // assume that first element is xs, ys come next
-  let barData = data.args.data
+  let smallMultiplesData = data.args.data
 
   // Maintain compatibility with older versions of Streamlit that don't send
   // a theme object.
@@ -37,24 +37,93 @@ function onRender(event){
   // Show "Hello, name!" with a non-breaking space afterwards.
   let gd = document.querySelector("#gd")
   // for some reason the width and height part here mess up the drawing
-  let t = [{ type: "bar", x:barData[0],y:barData[1]}]
-
-var layout = {
-
-  autosize:true,
-  showlegend: false,
+  // function that takes in one of the four things, and makes a bar chart from it
+  let trace_maker=(ob,axisI,topNum)=> {
+    // get the labels
+    let allItems = []
+    for (let k in ob) {
+      allItems.push([k,ob[k]])
+    }
+    // sort this 
+    allItems.sort((a,b) =>{
+      // negative means a is before b
+      // this would make sure that all the bigger values come first
+      return b[1]- a[1]
+    })
+    let biggest = allItems.slice(0,topNum)
+    return ({
+      marker:{
+        color:'#1f77b4'
+      },
+      x:biggest.map(e=>e[1]),
+      y:biggest.map(e=>e[0]),  // change length of name
+    xaxis: `x${axisI}`,
+    yaxis: `y${axisI}`,
+    type:"bar",
+    orientation:"h"
+    })
+  }
+  let top = 5 
+  let t = [
+    trace_maker(smallMultiplesData.topics,1,top),
+    trace_maker(smallMultiplesData.subfields,2,top),
+    trace_maker(smallMultiplesData.fields,3,top),
+    trace_maker(smallMultiplesData.domains,4,4), // there's only ever 4 domains
+  ];
+  
+  
+  var layout = {
+    autosize:true,
+    showlegend:false,
     margin: {
-      l: 50,
+      l: 250,
     r: 50,
     b: 100,
     t: 10,
     pad: 4
+    },
+    xaxis:{
+    showticklabels:false
+    },
+    xaxis1:{
+    showticklabels:false
+    },
+    xaxis2:{
+    showticklabels:false
+    },
+    xaxis3:{
+    showticklabels:false
+    },
+    xaxis4:{
+    showticklabels:false
+    },
+    grid: {rows: 4, columns: 1, pattern: 'independent'},
+    font: {
+
+      size: 8,
     }
 
-};
+  };
+  
+  
+  Plotly.newPlot('gd', t, layout,{staticPlot:true});
+//   let t = [{ type: "bar", x:barData[0],y:barData[1]}]
+//   var layout = {
+
+//   autosize:true,
+//   showlegend: false,
+//     margin: {
+//       l: 50,
+//     r: 50,
+//     b: 100,
+//     t: 10,
+//     pad: 4
+//     }
+
+// };
 
 
-  Plotly.newPlot("gd", t,layout,{staticPlot:true})
+//   Plotly.newPlot("gd", t,layout,{staticPlot:true})
   gd.on("plotly_click", (e => {
     console.log(e)
     // let t = e.points[0].label
