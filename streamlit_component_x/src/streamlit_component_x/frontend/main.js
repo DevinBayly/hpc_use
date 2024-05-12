@@ -39,6 +39,7 @@ function onRender(event){
   let t = [{width:800,height:800, type: "treemap", labels: treemapData
   [0], parents: treemapData[1] }]
   Plotly.newPlot("gd", t)
+  // TODO set up method for catching the events when we click to go back to a previuos level
   gd.on("plotly_click", (e => {
     console.log(e)
     let t = e.points[0].label
@@ -72,7 +73,7 @@ function onRender(event){
   // because our height stays fixed, but this is a low-cost function, so
   // there's no harm in doing it redundantly.)
   // set height to only this much plus a buffer
-  // Streamlit.setFrameHeight(bb.height)
+  Streamlit.setFrameHeight(bb.height)
   completed=true
 }
 
@@ -83,6 +84,6 @@ Streamlit.events.addEventListener(Streamlit.RENDER_EVENT, onRender)
 // first RENDER_EVENT until we call this function.
 Streamlit.setComponentReady()
 
-// Finally, tell Streamlit to update our initial height. We omit the
+// Finally, tell Streamlit to update our initial heig,tm_selectedht. We omit the
 // `height` parameter here to have it default to our scrollHeight.
 Streamlit.setFrameHeight()
