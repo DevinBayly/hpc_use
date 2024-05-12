@@ -12,7 +12,9 @@ import requests as rq
 import seaborn as sns
 from PIL import Image
 # get the custom component
-from streamlit_component_x.src.streamlit_component_x import example
+# TODO remove the example function in the following areas
+from streamlit_component_x.src.streamlit_component_x import example as treemap
+from streamlit_plotlyjs_barchart.src.streamlit_plotlyjs_barchart import example as barchart
 
 # code that helps us gather an instutions data per a year
 import requests as rq
@@ -118,17 +120,28 @@ parents= ["", "Eve", "Eve", "Seth", "Seth", "Eve", "Eve", "Awan", "Eve" ]
 # Here's the main application view 
 # show just a demonstration, and override these after the system has run
 # especially if there's already available jsons
-
+# NOTE bidirectional updates are possible between charts just because the entire app is reloaded for elements that have their keys update
 jsons = sorted(Path().glob("works*.json"))
 publications_dataframe = make_data_frame(jsons)
+
+
+
 # make the bar chart, based on Ben's code in pub_year.ipynb
 years = publications_dataframe['publication_year'].value_counts().sort_index()
 print("the years data is")
 print(years.head())
-plt = sns.barplot(years)
-st.pyplot(plt.get_figure())
+# access underlying array to convert
+year_lists = [years.index.tolist(),years.values.tolist()]
+print(year_lists)
+bar_res = barchart(year_lists)
+# simple change
+
+
+
 st.write(publications_dataframe.head())
-res = example([list(labels),list(parents)],key="fixed")
+# TODO consider an option that clears all the .jsons acculumated out
+# or at least hides showing data from those people
+res = treemap([list(labels),list(parents)],key="fixed")
 
 # standard metrics calculated 
 # although they are defined later this is just to make sure they are able to update the metrics shown
