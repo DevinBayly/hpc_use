@@ -24,6 +24,38 @@ from streamlit_plotlyjs_barchart.src.streamlit_plotlyjs_barchart import example 
 
 headers = {"mailto":"baylyd@arizona.edu"}
 
+# Working with concepts, original code  by Ben Kruse, modifications for topics by Devin Bayly
+@st.cache_data
+def conceptualize(df):
+    pairs=[]
+    # 
+    for i in range(len(df)):
+        published_work_name = df.iloc[i]["display_name"]
+        for topic in df['topics'].iloc[i]:
+            # we add the child to the label, and the parent to the parents
+            topic_name = topic["display_name"]
+            subfield_name = topic["subfield"]["display_name"]
+            field_name = topic["field"]["display_name"]
+            domain_name = topic["domain"]["display_name"]
+            pairs.append((published_work_name,topic_name))
+            pairs.append((
+                topic_name,subfield_name
+            ))
+            pairs.append((
+                subfield_name,field_name
+            ))
+            pairs.append((
+                field_name,domain_name
+            ))
+            pairs.append((
+                domain_name,""
+            ))
+
+
+    # run a set simplification on the pairs at the end so that we don't have duplicate matches
+    dedup_pairs = list(set(pairs))
+    label_names,parent_names = map(list, zip(*dedup_pairs))
+    return label_names,parent_names
 @st.cache_data
 def make_data_frame(work_jsons):
     # handles a list of jsons that we construct a dataframe from
@@ -124,11 +156,31 @@ parents= ["", "Eve", "Eve", "Seth", "Seth", "Eve", "Eve", "Awan", "Eve" ]
 # NOTE bidirectional updates are possible between charts just because the entire app is reloaded for elements that have their keys update
 jsons = sorted(Path().glob("works*.json"))
 publications_dataframe = make_data_frame(jsons)
+# ensure that there's a string searchable topic column to filter from interactions with the treemap
+publications_dataframe["topics_str"] = publications_dataframe.topics.apply(json.dumps)
+# here's where we would put in our modifications from the treemap
 
+
+
+# TODO consider an option that clears all the .jsons acculumated out
+# or at least hides showing data from those people
+
+
+# Treemap section
+
+
+
+# test out with the names and parents being passed
+concept_names,concept_parents = conceptualize(publications_dataframe)
+tm_selected = treemap([concept_names,concept_parents],key="fixed")
+
+# make a version of the data that we can filter down on if the treemap has been modified
+
+metrics_data = publications_dataframe[publications_dataframe.topics_str.str.contains(tm_selected,na=False)]
 
 
 # make the bar chart, based on Ben's code in pub_year.ipynb
-years = publications_dataframe['publication_year'].value_counts().sort_index()
+years = metrics_data['publication_year'].value_counts().sort_index()
 print("the years data is")
 print(years.head())
 # access underlying array to convert
@@ -139,54 +191,8 @@ bar_res = barchart(year_lists)
 
 
 
-st.write(publications_dataframe.head())
+st.write(metrics_data.head())
 
-
-
-# TODO consider an option that clears all the .jsons acculumated out
-# or at least hides showing data from those people
-
-
-# Treemap section
-# Working with concepts, code provided by Ben Kruse
-# TODO make this a cached function, if the dataframe changes, then re-run, else just give back same thing
-@st.cache_data
-def conceptualize(df):
-    pairs=[]
-    # 
-    for i in range(len(df)):
-        published_work_name = df.iloc[i]["display_name"]
-        for topic in df['topics'].iloc[i]:
-            # we add the child to the label, and the parent to the parents
-            topic_name = topic["display_name"]
-            subfield_name = topic["subfield"]["display_name"]
-            field_name = topic["field"]["display_name"]
-            domain_name = topic["domain"]["display_name"]
-            pairs.append((published_work_name,topic_name))
-            pairs.append((
-                topic_name,subfield_name
-            ))
-            pairs.append((
-                subfield_name,field_name
-            ))
-            pairs.append((
-                field_name,domain_name
-            ))
-            pairs.append((
-                domain_name,""
-            ))
-
-
-    # run a set simplification on the pairs at the end so that we don't have duplicate matches
-    dedup_pairs = list(set(pairs))
-    label_names,parent_names = map(list, zip(*dedup_pairs))
-    return label_names,parent_names
-
-
-
-# test out with the names and parents being passed
-concept_names,concept_parents = conceptualize(publications_dataframe)
-res = treemap([concept_names,concept_parents],key="fixed")
 
 # standard metrics calculated 
 # although they are defined later this is just to make sure they are able to update the metrics shown
