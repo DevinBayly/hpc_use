@@ -168,103 +168,104 @@ def results_per_year(author_id,ror,year,qlim=2):
 # especially if there's already available jsons
 # NOTE bidirectional updates are possible between charts just because the entire app is reloaded for elements that have their keys update
 jsons = sorted(Path().glob("works*.json"))
-publications_dataframe = make_data_frame(jsons)
-# ensure that there's a string searchable topic column to filter from interactions with the treemap
-publications_dataframe["topics_str"] = publications_dataframe.topics.apply(json.dumps)
+if len(jsons) >0:
+    publications_dataframe = make_data_frame(jsons)
+    # ensure that there's a string searchable topic column to filter from interactions with the treemap
+    publications_dataframe["topics_str"] = publications_dataframe.topics.apply(json.dumps)
 
-# Here's the main application view 
-st.write("## Cluster Publication Impact Explorer")
-# make a holder for the top 3 columns
-# holder for the info at the top
-h1 = st.container()
-t1,t2,t3,t4,t5 = h1.columns(5)
-h2 = st.container()
-c1,c2,c3 = h2.columns(3)
-h3 = st.container()
-
-
-# TODO consider an option that clears all the .jsons acculumated out
-# or at least hides showing data from those people
+    # Here's the main application view 
+    st.write("## Cluster Publication Impact Explorer")
+    # make a holder for the top 3 columns
+    # holder for the info at the top
+    h1 = st.container()
+    t1,t2,t3,t4,t5 = h1.columns(5)
+    h2 = st.container()
+    c1,c2,c3 = h2.columns(3)
+    h3 = st.container()
 
 
-# Treemap section
-# test out with the names and parents being passed
-concept_names,concept_parents,counts = conceptualize(publications_dataframe)
-# control placing the custom element in the second holder
-with c1:
-    tm_selected = treemap([concept_names,concept_parents],key="fixed")
-    print("tm selected is ",tm_selected)
-
-# make a version of the data that we can filter down on if the treemap has been modified
-if tm_selected == ["finished","code"]:
-    metrics_data = publications_dataframe
-else:
-    metrics_data = publications_dataframe[publications_dataframe.topics_str.str.contains(tm_selected,na=False)]
-
-# TODO make the metrics and bar update when we reset by clicking back up to the top also
-# make the bar chart, based on Ben's code in pub_year.ipynb
-years = metrics_data['publication_year'].value_counts().sort_index()
-print("the years data is")
-print(years.head())
-# access underlying array to convert
-year_lists = [years.index.tolist(),years.values.tolist()]
-print(year_lists)
-with c2:
-    bar_res = barchart(year_lists)
-
-# make the small multiples chart showing the counts of the different fields and things
-
-with c3:
-    # use the counts data to make several small charts, showing different topics, subfields,fields, and domains
-    # counts currently holds several dictionarys each with names connected to counts that those names came up, 
-    # send it through to make graphs out of it
-    sm_res = smallmultiples(counts)
-
-with t1:
-    # write total publications
-    total = metrics_data.shape[0]
-    st.write(f"Total Publications")
-    st.write(f"## **{total}**")
-with t2:
-    # gather the field information
-    citations = metrics_data.cited_by_count.sum()
-    st.write(f"Total Cited By")
-    st.write(f"## **{citations}**")
-with t3:
-    # gather how many references used
-    references = metrics_data.referenced_works_count.sum()
-    st.write(f"Total References used")
-    st.write(f"## **{references}**")
-with t4:
-    grants_total = pd.DataFrame(metrics_data.grants.values.tolist()).count().sum()
-    st.write("Total Research Grants")
-    st.write(F"## **{grants_total}**")
+    # TODO consider an option that clears all the .jsons acculumated out
+    # or at least hides showing data from those people
 
 
-with t5:
-    # include the counts of the article types
-    pub_type_counts = metrics_data.type.value_counts()
-    st.write(f"Publication Types")
-    types= pub_type_counts.index.tolist()
-    counts = pub_type_counts.values.tolist()
-    print(types)
-    print(counts)
-    for t,c in zip(types,counts):
-        st.write(f'**{t}** **{c}**')
+    # Treemap section
+    # test out with the names and parents being passed
+    concept_names,concept_parents,counts = conceptualize(publications_dataframe)
+    # control placing the custom element in the second holder
+    with c1:
+        tm_selected = treemap([concept_names,concept_parents],key="fixed")
+        print("tm selected is ",tm_selected)
 
-# standard metrics calculated 
-# although they are defined later this is just to make sure they are able to update the metrics shown
+    # make a version of the data that we can filter down on if the treemap has been modified
+    if tm_selected == ["finished","code"]:
+        metrics_data = publications_dataframe
+    else:
+        metrics_data = publications_dataframe[publications_dataframe.topics_str.str.contains(tm_selected,na=False)]
+
+    # TODO make the metrics and bar update when we reset by clicking back up to the top also
+    # make the bar chart, based on Ben's code in pub_year.ipynb
+    years = metrics_data['publication_year'].value_counts().sort_index()
+    print("the years data is")
+    print(years.head())
+    # access underlying array to convert
+    year_lists = [years.index.tolist(),years.values.tolist()]
+    print(year_lists)
+    with c2:
+        bar_res = barchart(year_lists)
+
+    # make the small multiples chart showing the counts of the different fields and things
+
+    with c3:
+        # use the counts data to make several small charts, showing different topics, subfields,fields, and domains
+        # counts currently holds several dictionarys each with names connected to counts that those names came up, 
+        # send it through to make graphs out of it
+        sm_res = smallmultiples(counts)
+
+    with t1:
+        # write total publications
+        total = metrics_data.shape[0]
+        st.write(f"Total Publications")
+        st.write(f"## **{total}**")
+    with t2:
+        # gather the field information
+        citations = metrics_data.cited_by_count.sum()
+        st.write(f"Total Cited By")
+        st.write(f"## **{citations}**")
+    with t3:
+        # gather how many references used
+        references = metrics_data.referenced_works_count.sum()
+        st.write(f"Total References used")
+        st.write(f"## **{references}**")
+    with t4:
+        grants_total = pd.DataFrame(metrics_data.grants.values.tolist()).count().sum()
+        st.write("Total Research Grants")
+        st.write(F"## **{grants_total}**")
 
 
-# at the lowest show the most fine grained data
-with h3:
-    st.write(metrics_data.head())
+    with t5:
+        # include the counts of the article types
+        pub_type_counts = metrics_data.type.value_counts()
+        st.write(f"Publication Types")
+        types= pub_type_counts.index.tolist()
+        counts = pub_type_counts.values.tolist()
+        print(types)
+        print(counts)
+        for t,c in zip(types,counts):
+            st.write(f'**{t}** **{c}**')
+
+    # standard metrics calculated 
+    # although they are defined later this is just to make sure they are able to update the metrics shown
 
 
-# TODO think about how to maek the bar charts interactions also update things like the tree map
+    # at the lowest show the most fine grained data
+    with h3:
+        st.write(metrics_data.head())
 
-# bar chart section
-# show the trend of the publication submissions over years
+
+    # TODO think about how to maek the bar charts interactions also update things like the tree map
+
+    # bar chart section
+    # show the trend of the publication submissions over years
 
 # making a sidebar
 # "with" notation
