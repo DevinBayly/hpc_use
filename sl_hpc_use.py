@@ -1,4 +1,6 @@
 import streamlit as st
+# this is the open alex import
+import pyalex
 from pathlib import Path
 import pandas as pd
 import numpy as np
@@ -7,7 +9,7 @@ import sys
 import random
 import streamlit.elements.image as st_image
 import requests as rq
-import seaborn as sb
+import seaborn as sns
 from PIL import Image
 # get the custom component
 from streamlit_component_x.src.streamlit_component_x import example
@@ -18,6 +20,14 @@ import requests as rq
 # TODO add a progress bar to the tool
 
 headers = {"mailto":"baylyd@arizona.edu"}
+
+@st.cache_data
+def make_data_frame(work_jsons):
+    # handles a list of jsons that we construct a dataframe from
+    all_works = []
+    for work in work_jsons:
+        all_works.extend(json.loads(work.read_text()))
+    return pd.DataFrame(all_works)
 
 @st.cache_data
 def get_researcher_id(first,last,ror):
@@ -106,8 +116,18 @@ parents= ["", "Eve", "Eve", "Seth", "Seth", "Eve", "Eve", "Awan", "Eve" ]
 
 
 # Here's the main application view 
+# show just a demonstration, and override these after the system has run
+# especially if there's already available jsons
 
-
+jsons = sorted(Path().glob("works*.json"))
+publications_dataframe = make_data_frame(jsons)
+# make the bar chart, based on Ben's code in pub_year.ipynb
+years = publications_dataframe['publication_year'].value_counts().sort_index()
+print("the years data is")
+print(years.head())
+plt = sns.barplot(years)
+st.pyplot(plt.get_figure())
+st.write(publications_dataframe.head())
 res = example([list(labels),list(parents)],key="fixed")
 
 # standard metrics calculated 
@@ -168,20 +188,25 @@ Joshua, Levine""")
         # TODO set up checking for all the dependent inputs
         # TODO add a parameter that will tell us how many pages of results we want to gather from each year, for demo we can set it to 1 or 2
         # TODO set up the progress bars for this section
-        year = start_date
-        # go through the list of the researchers
-        for name in names.strip().split("\n"):
-            first,last = name.split(",")
-            print(first,last)
-            author_id = get_researcher_id(first,last,ror_id)
-            if author_id ==-1:
-                print("no id for ",first,last)
-                continue
-            qres = results_per_year(author_id,ror_id,year,qlim= queries_per_year)
-            # st.write(qres)
-            #print(qres)
-            Path(f"{author_id}_{year}_{ror_id}.json").write_text(json.dumps(qres))
+        # ensure that we cover the ending year also
+        for year in range(start_date,end_date+1):
+            # go through the list of the researchers
+            for name in names.strip().split("\n"):
+                first,last = name.split(",")
+                print(first,last)
+                author_id = get_researcher_id(first,last,ror_id)
+                if author_id ==-1:
+                    print("no id for ",first,last)
+                    continue
+                qres = results_per_year(author_id,ror_id,year,qlim= queries_per_year)
+                # st.write(qres)
+                #print(qres)
+                Path(f"works_{author_id}_{year}_{ror_id}.json").write_text(json.dumps(qres))
+                # merge the separate files into a dataframe
+
     # this code is from the vis sieve project 
+
+
 
 #if res and 'finished' not in res:
 #    st.markdown(res)
