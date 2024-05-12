@@ -17,6 +17,7 @@ from PIL import Image
 # TODO remove the example function in the following areas
 from streamlit_component_x.src.streamlit_component_x import example as treemap
 from streamlit_plotlyjs_barchart.src.streamlit_plotlyjs_barchart import example as barchart
+from streamlit_small_multiples.src.streamlit_small_multiples import example as smallmultiples
 
 st.set_page_config(layout="wide")
 # code that helps us gather an instutions data per a year
@@ -71,7 +72,7 @@ def conceptualize(df):
     # run a set simplification on the pairs at the end so that we don't have duplicate matches
     dedup_pairs = list(set(pairs))
     label_names,parent_names = map(list, zip(*dedup_pairs))
-    return label_names,parent_names,[topics,subfields,fields,domains]
+    return label_names,parent_names,{"topics":topics,"subfields":subfields,"fields":fields,"domains":domains}
 
 
 @st.cache_data
@@ -217,7 +218,10 @@ with c2:
 # make the small multiples chart showing the counts of the different fields and things
 
 with c3:
-    pass
+    # use the counts data to make several small charts, showing different topics, subfields,fields, and domains
+    # counts currently holds several dictionarys each with names connected to counts that those names came up, 
+    # send it through to make graphs out of it
+    sm_res = smallmultiples(counts)
 
 with t1:
     # write total publications
