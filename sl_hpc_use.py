@@ -16,15 +16,24 @@ from streamlit_component_x.src.streamlit_component_x import example
 import requests as rq
 # https://github.com/DevinBayly/vis-sieve/raw/1b09d0bcc7851eeb63524c4e730499eba59cb7ef/openalex_code/hear_me_ROR.ipynb
 # TODO add a progress bar to the tool
+
+
+@st.cache_data
 def results_per_year(ror,year,qlim=2):
+    # progress bar
+    pubs_per_year_prog = st.progress(0,text=f"Starting query for year {year}, {qlim} in progress")
     all_res = []
     headers = {"mailto":"baylyd@arizona.edu"}
-    res = rq.get(f"https://api.openalex.org/works?filter=publication_year:{year},institutions.ror:{ror}&cursor=*&per-page=200",headers=headers)
+    url =f"https://api.openalex.org/works?filter=publication_year:{year},institutions.ror:{ror}&cursor=*&per-page=200"
+    print(url)
+    res = rq.get(url,headers=headers)
     data = res.json()
     print(data["meta"])
     all_res.extend(data["results"])
     cursor = data["meta"]["next_cursor"]
     query =1
+    pubs_per_year_prog.progress(1/qlim, text=f'Works total {data["meta"]["count"]}, {qlim} in progress')
+
     while query < qlim:
         res = rq.get(f"https://api.openalex.org/works?filter=publication_year:{year},institutions.ror:{ror}&cursor={cursor}&per-page=200")
         data = res.json()
@@ -32,6 +41,9 @@ def results_per_year(ror,year,qlim=2):
         cursor = data["meta"].get("next_cursor",None)
         query+=1
         print(query)
+        pubs_per_year_prog.progress(query/qlim)
+    print("done",year,ror)
+    pubs_per_year_prog.empty()
     return all_res
 
 
@@ -103,7 +115,8 @@ with st.sidebar:
     names = st.text_area("First name, Last name, **One per line**",
     """Chris, Reidy
 Devin, Bayly
-Ben,Kruse
+Ben, Kruse
+Jeremy, Frumkin
 Nirav, Merchant
 Tyson, Swetnam
 Joshua, Levine""")
@@ -141,9 +154,11 @@ Joshua, Levine""")
         print(ror_id)
         # TODO set up checking for all the dependent inputs
         # TODO add a parameter that will tell us how many pages of results we want to gather from each year, for demo we can set it to 1 or 2
-        qres = results_per_year(ror_id,start_date,qlim= queries_per_year)
+        year = start_date
+        qres = results_per_year(ror_id,year,qlim= queries_per_year)
         # st.write(qres)
-        print(qres)
+        #print(qres)
+        Path(f"{year}_{ror_id}.json").write_text(json.dumps(qres))
     # this code is from the vis sieve project 
 
 #if res and 'finished' not in res:

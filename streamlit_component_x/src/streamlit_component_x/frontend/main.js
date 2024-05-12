@@ -72,7 +72,7 @@ function onRender(event){
   // because our height stays fixed, but this is a low-cost function, so
   // there's no harm in doing it redundantly.)
   // set height to only this much plus a buffer
-  Streamlit.setFrameHeight(bb.height)
+  // Streamlit.setFrameHeight(bb.height)
   completed=true
 }
 
