@@ -9,7 +9,6 @@ import sys
 import random
 import streamlit.elements.image as st_image
 import requests as rq
-import seaborn as sns
 from PIL import Image
 # get the custom component
 # TODO remove the example function in the following areas
