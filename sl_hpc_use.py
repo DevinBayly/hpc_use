@@ -1,7 +1,6 @@
 import streamlit as st
 # this is the open alex import
 # TODO make sure to cite this package
-from pyalex import Concepts
 from pathlib import Path
 import pandas as pd
 import numpy as np
