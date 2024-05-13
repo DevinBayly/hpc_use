@@ -40,7 +40,6 @@ function onRender(event){
   let parentBB = gd.parentElement.getBoundingClientRect()
   let t = [{type: "treemap", labels: treemapData[0], parents: treemapData[1] }]
   var layout = {
-     width:450,
      margin: {
        l: 0,
        r: 0,
