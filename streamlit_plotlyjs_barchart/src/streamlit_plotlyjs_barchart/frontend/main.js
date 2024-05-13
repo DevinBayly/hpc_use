@@ -43,13 +43,7 @@ var layout = {
 
   autosize:true,
   showlegend: false,
-    margin: {
-      l: 50,
-    r: 50,
-    b: 100,
-    t: 10,
-    pad: 4
-    }
+  automargin:true,
 
 };
 
