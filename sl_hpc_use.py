@@ -197,7 +197,7 @@ if len(jsons) >0:
         print("tm selected is ",tm_selected)
 
     # make a version of the data that we can filter down on if the treemap has been modified
-    if tm_selected == ["finished","code"]:
+    if tm_selected == ["finished","code"] or tm_selected== None:
         metrics_data = publications_dataframe
     else:
         metrics_data = publications_dataframe[publications_dataframe.topics_str.str.contains(tm_selected,na=False)]
