@@ -108,14 +108,17 @@ def results_per_year(author_id,ror,year,qlim=2):
     pubs_per_year_prog.progress(1/qlim, text=f'Works total {data["meta"]["count"]}, {qlim} in progress')
 
 
-    while query < qlim:
+    while query < qlim and cursor:
         res = rq.get(f"https://api.openalex.org/works?filter=authorships.author.id:{author_id},publication_year:{year},institutions.ror:{ror}&cursor={cursor}&per-page=200")
         data = res.json()
-        all_res.extend(data["results"])
-        cursor = data["meta"].get("next_cursor",None)
-        query+=1
-        print(query)
-        pubs_per_year_prog.progress(query/qlim)
+        if data.get("results",None):
+            all_res.extend(data["results"])
+            cursor = data["meta"].get("next_cursor",None)
+            query+=1
+            print(query)
+            pubs_per_year_prog.progress(query/qlim)
+        else:
+            break
     print("done",year,ror)
     pubs_per_year_prog.empty()
     return all_res
