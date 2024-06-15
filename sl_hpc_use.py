@@ -269,6 +269,12 @@ if len(jsons) >0:
 
     # bar chart section
     # show the trend of the publication submissions over years
+    ## Insert a place holder if we don't have any json data to actually show here
+else:
+    st.write("# Fill out the sidebar and submit to use")
+    st.image("placeholder.png")
+
+
 
 # making a sidebar
 # "with" notation
