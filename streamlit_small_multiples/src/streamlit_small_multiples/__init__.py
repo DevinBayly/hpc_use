@@ -39,7 +39,7 @@ def main(data):
 
 def example(data,key=None):
     print("inside of example",data)
-    st.write("#### Topics Small Multiples ")
+    st.write("#### Topic Counts")
     value = streamlit_small_multiples(data = data,key=key)
     print("value is",value)
     return value

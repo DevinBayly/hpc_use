@@ -82,21 +82,6 @@ function onRender(event){
     t: 10,
     pad: 4
     },
-    xaxis:{
-    showticklabels:false
-    },
-    xaxis1:{
-    showticklabels:false
-    },
-    xaxis2:{
-    showticklabels:false
-    },
-    xaxis3:{
-    showticklabels:false
-    },
-    xaxis4:{
-    showticklabels:false
-    },
     grid: {rows: 4, columns: 1, pattern: 'independent'},
     font: {
 
