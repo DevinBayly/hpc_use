@@ -123,55 +123,7 @@ def results_per_year(author_id,ror,year,qlim=2):
     pubs_per_year_prog.empty()
     return all_res
 
-
-# Add some test code to play with the component while it's in development.
-# During development, we can run this just as we would any other Streamlit
-# app: `$ streamlit run my_component/example.py`
-
-
-
-
-#concept_names, concept_counts, concept_parents = json.load(open('found_concepts.json', "r"))
-#
-## Sort by 
-#for _ in range(3):
-#    for i, concept_name in enumerate(concept_parents):
-#        if concept_name != "" and concept_name not in concept_names:
-#            concept_names.pop(i)
-#            concept_counts.pop(i)
-#            concept_parents.pop(i)
-#            # print(concept_name)
-#            # print("Removed " + concept_name)
-#
-#    print("Leftovers")
-#    for i, concept_name in enumerate(concept_parents):
-#        if concept_name != "" and concept_name not in concept_names:
-#            # print(concept_name)
-#            pass
-#
-#
-#"""
-## Publications by Users of University of Arizona HPC
-#
-#This app presents an interactive data visualization allowing a user to explore the scientific fields that our HPC users published to in the time range 2016-2022. 
-#
-#Interaction instructions:
-#* Clicking on an individual square will expand the view and present the sub-fields for the selected square, this allows you to "go down" the tree
-#* To "go back up" the tree, click on the ribbon at the top 
-#* Now please click fullscreen to explore further
-#You are encouraged to full screen the tree map below. 
-#"""
-##fig.update_traces(marker_cornerradius=5)
-## st.plotly_chart(fig)
-#
-#print("running example from test_custom")
-
-
-# show just a demonstration, and override these after the system has run
-# especially if there's already available jsons
-# NOTE bidirectional updates are possible between charts just because the entire app is reloaded for elements that have their keys update
-jsons = sorted(Path().glob("works*.json"))
-if len(jsons) >0:
+def make_page(jsons):
     publications_dataframe = make_data_frame(jsons)
     # ensure that there's a string searchable topic column to filter from interactions with the treemap
     publications_dataframe["topics_str"] = publications_dataframe.topics.apply(json.dumps)
@@ -270,6 +222,56 @@ if len(jsons) >0:
     # bar chart section
     # show the trend of the publication submissions over years
     ## Insert a place holder if we don't have any json data to actually show here
+
+# Add some test code to play with the component while it's in development.
+# During development, we can run this just as we would any other Streamlit
+# app: `$ streamlit run my_component/example.py`
+
+
+
+
+#concept_names, concept_counts, concept_parents = json.load(open('found_concepts.json', "r"))
+#
+## Sort by 
+#for _ in range(3):
+#    for i, concept_name in enumerate(concept_parents):
+#        if concept_name != "" and concept_name not in concept_names:
+#            concept_names.pop(i)
+#            concept_counts.pop(i)
+#            concept_parents.pop(i)
+#            # print(concept_name)
+#            # print("Removed " + concept_name)
+#
+#    print("Leftovers")
+#    for i, concept_name in enumerate(concept_parents):
+#        if concept_name != "" and concept_name not in concept_names:
+#            # print(concept_name)
+#            pass
+#
+#
+#"""
+## Publications by Users of University of Arizona HPC
+#
+#This app presents an interactive data visualization allowing a user to explore the scientific fields that our HPC users published to in the time range 2016-2022. 
+#
+#Interaction instructions:
+#* Clicking on an individual square will expand the view and present the sub-fields for the selected square, this allows you to "go down" the tree
+#* To "go back up" the tree, click on the ribbon at the top 
+#* Now please click fullscreen to explore further
+#You are encouraged to full screen the tree map below. 
+#"""
+##fig.update_traces(marker_cornerradius=5)
+## st.plotly_chart(fig)
+#
+#print("running example from test_custom")
+
+
+# show just a demonstration, and override these after the system has run
+# especially if there's already available jsons
+# NOTE bidirectional updates are possible between charts just because the entire app is reloaded for elements that have their keys update
+jsons = sorted(Path().glob("works*.json"))
+if len(jsons) >0:
+    make_page(jsons)
 else:
     st.write("# Fill out the sidebar and submit to use")
     st.image("placeholder.png")
@@ -342,6 +344,10 @@ Joshua, Levine""")
                 #print(qres)
                 Path(f"works_{author_id}_{year}_{ror_id}.json").write_text(json.dumps(qres))
                 # merge the separate files into a dataframe
+            
+if btn:
+    jsons = sorted(Path().glob("works*.json"))
+    make_page(jsons)
 
     # this code is from the vis sieve project 
 
