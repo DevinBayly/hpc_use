@@ -345,6 +345,7 @@ Joshua, Levine""")
                 Path(f"works_{author_id}_{year}_{ror_id}.json").write_text(json.dumps(qres))
                 # merge the separate files into a dataframe
             
+#TODO, seems to work for first reload, but doesn't do it if we have jsons already?
 if btn:
     jsons = sorted(Path().glob("works*.json"))
     make_page(jsons)
