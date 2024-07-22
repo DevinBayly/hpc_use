@@ -44,7 +44,9 @@ var layout = {
   autosize:true,
   showlegend: false,
   automargin:true,
-
+  xaxis:{
+    type:"category"
+  }
 };
 
 
