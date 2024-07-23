@@ -10,7 +10,7 @@ let isFocused = false
  * the component is initially loaded, and then again every time the
  * component gets new data from Python.
  */
-function onRender(event){
+function onRender(event) {
   // Get the RenderData from the event
   if (completed) return
   const data = event.detail
@@ -37,20 +37,20 @@ function onRender(event){
   // Show "Hello, name!" with a non-breaking space afterwards.
   let gd = document.querySelector("#gd")
   // for some reason the width and height part here mess up the drawing
-  let t = [{ type: "bar", x:barData[0],y:barData[1]}]
+  let t = [{ type: "bar", x: barData[0], y: barData[1] }]
 
-var layout = {
+  var layout = {
 
-  autosize:true,
-  showlegend: false,
-  automargin:true,
-  xaxis:{
-    type:"category"
-  }
-};
+    autosize: true,
+    showlegend: false,
+    automargin: true,
+    xaxis: {
+      type: "category"
+    }
+  };
 
 
-  Plotly.newPlot("gd", t,layout,{staticPlot:true})
+  Plotly.newPlot("gd", t, layout, { staticPlot: true })
   gd.on("plotly_click", (e => {
     console.log(e)
     // let t = e.points[0].label
@@ -61,21 +61,21 @@ var layout = {
   let btn = document.querySelector("button")
   if (btn) {
 
-  btn.onclick = () => {
-    let update = {
-      width:1920,
-      height:1080
+    btn.onclick = () => {
+      let update = {
+        width: 1920,
+        height: 1080
+      }
+      Plotly.relayout("gd", update);
+      let bb = gd.getBoundingClientRect()
+      console.log(bb)
+      // We tell Streamlit to update our frameHeight after each render event, in
+      // case it has changed. (This isn't strictly necessary for the example
+      // because our height stays fixed, but this is a low-cost function, so
+      // there's no harm in doing it redundantly.)
+      // set height to only this much plus a buffer
+      Streamlit.setFrameHeight(bb.height)
     }
-    Plotly.relayout("gd", update);
-    let bb = gd.getBoundingClientRect()
-    console.log(bb)
-    // We tell Streamlit to update our frameHeight after each render event, in
-    // case it has changed. (This isn't strictly necessary for the example
-    // because our height stays fixed, but this is a low-cost function, so
-    // there's no harm in doing it redundantly.)
-    // set height to only this much plus a buffer
-    Streamlit.setFrameHeight(bb.height)
-  }
   }
 
   let bb = gd.getBoundingClientRect()
@@ -86,7 +86,7 @@ var layout = {
   // there's no harm in doing it redundantly.)
   // set height to only this much plus a buffer
   Streamlit.setFrameHeight(bb.height)
-  completed=true
+  completed = true
 }
 
 // Attach our `onRender` handler to Streamlit's render event.
