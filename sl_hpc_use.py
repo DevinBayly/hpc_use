@@ -1,4 +1,5 @@
 import streamlit as st
+import random
 # this is the open alex import
 # TODO make sure to cite this package
 from pathlib import Path
@@ -146,9 +147,10 @@ def make_page(jsons):
     # Treemap section
     # test out with the names and parents being passed
     concept_names,concept_parents,counts = conceptualize(publications_dataframe)
+    # print("counts",counts)
     # control placing the custom element in the second holder
     with c1:
-        tm_selected = treemap([concept_names,concept_parents],key="fixed")
+        tm_selected = treemap([concept_names,concept_parents],key="unchanged")
         print("tm selected is ",tm_selected)
 
     # make a version of the data that we can filter down on if the treemap has been modified
@@ -159,6 +161,7 @@ def make_page(jsons):
 
     # TODO make the metrics and bar update when we reset by clicking back up to the top also
     # make the bar chart, based on Ben's code in pub_year.ipynb
+    # BUG metrics data is the same if we go up a level because it doesn't automatically receive the "went back up" signal for the data
     years = metrics_data['publication_year'].value_counts().sort_index()
     print("the years data is")
     print(years.head())
@@ -166,6 +169,14 @@ def make_page(jsons):
     year_lists = [years.index.tolist(),years.values.tolist()]
     print(year_lists)
     with c2:
+        # random
+        # year_lists = [[],[]]
+        # for i in range(random.randint(0,5)):
+        #     year = 2012 + i
+
+        #     value = random.randint(0,40)
+        #     year_lists[0].append(year)
+        #     year_lists[1].append(value)
         bar_res = barchart(year_lists)
 
     # make the small multiples chart showing the counts of the different fields and things
@@ -313,11 +324,11 @@ Joshua, Levine""")
         value=(2016, 2017))
     st.write("You selected years between", start_date, "and", end_date)
     # limiting the queries to a number
-    queries_per_year = st.select_slider(
-        "Select the number of queries per year",
-        options=list(range(1,100)),
-        value=(1))
-    st.write("You selected ", queries_per_year," per year")
+    preview = st.checkbox("Fast preview of results (fewer queries)")
+    if preview:
+        queries_per_year=1
+    else:
+        queries_per_year = 400
 
 
     # go get the information, save it to disk so that it's cached though 
