@@ -40,7 +40,7 @@ def main(data):
     print(value)
 
 def example(data,key=None):
-    print("inside of example",data)
+    # print("inside of example",data)
     st.write("### Publications by Year")
     value = streamlit_plotlyjs_barchart(data = data,key=key)
     print("value is",value)
