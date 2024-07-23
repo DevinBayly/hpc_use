@@ -280,12 +280,6 @@ def make_page(jsons):
 # show just a demonstration, and override these after the system has run
 # especially if there's already available jsons
 # NOTE bidirectional updates are possible between charts just because the entire app is reloaded for elements that have their keys update
-jsons = sorted(Path().glob("works*.json"))
-if len(jsons) >0:
-    make_page(jsons)
-else:
-    st.write("# Fill out the sidebar and submit to use")
-    st.image("placeholder.png")
 
 
 
@@ -315,6 +309,9 @@ Joshua, Levine""")
             st.write(best_ror_res["id"])
             ror_id = Path(best_ror_res["id"]).stem
             print(ror_id)
+
+            out_folder = Path(f"{ror_id}")
+            out_folder.mkdir(exist_ok=True)
 
     
     #specifying the range in time that we want to inspect
@@ -353,16 +350,23 @@ Joshua, Levine""")
                 qres = results_per_year(author_id,ror_id,year,qlim= queries_per_year)
                 # st.write(qres)
                 #print(qres)
-                Path(f"works_{author_id}_{year}_{ror_id}.json").write_text(json.dumps(qres))
+                Path(f"{out_folder}/works_{author_id}_{year}_{ror_id}.json").write_text(json.dumps(qres))
                 # merge the separate files into a dataframe
             
 #TODO, seems to work for first reload, but doesn't do it if we have jsons already?
+print("out folder is",out_folder)
 if btn:
-    jsons = sorted(Path().glob("works*.json"))
+    jsons = sorted(Path().glob(f"{out_folder}/works*.json"))
     make_page(jsons)
 
     # this code is from the vis sieve project 
 
+jsons = sorted(Path().glob(f"{out_folder}/works*.json"))
+if len(jsons) >0:
+    make_page(jsons)
+else:
+    st.write("# Fill out the sidebar and submit to use")
+    st.image("placeholder.png")
 
 
 #if res and 'finished' not in res:
