@@ -158,6 +158,17 @@ def make_page(jsons):
         metrics_data = publications_dataframe
     else:
         metrics_data = publications_dataframe[publications_dataframe.topics_str.str.contains(tm_selected,na=False)]
+    # reorder the columns
+    metrics_data.grants = metrics_data.grants.astype("str")
+    authorships = []
+    for aob in metrics_data.authorships:
+        authors = []
+        for a in aob:
+            authors.append(a["author"]["display_name"])
+        authorships.append(", ".join(authors))
+    metrics_data["authorships"] = authorships
+    metrics_data = metrics_data.reindex(columns=["title","publication_date","type",
+    "authorships","cited_by_count","referenced_works_count","publication_year","grants"])
 
     # TODO make the metrics and bar update when we reset by clicking back up to the top also
     # make the bar chart, based on Ben's code in pub_year.ipynb
