@@ -162,6 +162,7 @@ def make_page(jsons):
     # TODO make the metrics and bar update when we reset by clicking back up to the top also
     # make the bar chart, based on Ben's code in pub_year.ipynb
     # BUG metrics data is the same if we go up a level because it doesn't automatically receive the "went back up" signal for the data
+    # use the 
     years = metrics_data['publication_year'].value_counts().sort_index()
     print("the years data is")
     print(years.head())
