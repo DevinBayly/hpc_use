@@ -378,7 +378,7 @@ jsons = sorted(Path().glob(f"{out_folder}/works*.json"))
 if len(jsons) >0:
     make_page(jsons)
 else:
-    st.write("# Fill out the sidebar and submit to use")
+    st.write("# :red[Fill out the sidebar and submit to use]")
     st.image("placeholder.png")
 
 
