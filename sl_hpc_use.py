@@ -166,10 +166,10 @@ def make_page(jsons):
         for a in aob:
             authors.append(a["author"]["display_name"])
         authorships.append(", ".join(authors))
+    _,_,counts =conceptualize(metrics_data)
     metrics_data["authorships"] = authorships
-    metrics_data = metrics_data.reindex(columns=["title","publication_date","type",
-    "authorships","cited_by_count","referenced_works_count","publication_year","grants"])
-
+    metrics_data = metrics_data.reindex(columns=["title","publication_date","type", "authorships","cited_by_count","referenced_works_count","publication_year","grants"])
+    # update counts for small multiples
     # TODO make the metrics and bar update when we reset by clicking back up to the top also
     # make the bar chart, based on Ben's code in pub_year.ipynb
     # BUG metrics data is the same if we go up a level because it doesn't automatically receive the "went back up" signal for the data
@@ -197,6 +197,7 @@ def make_page(jsons):
         # use the counts data to make several small charts, showing different topics, subfields,fields, and domains
         # counts currently holds several dictionarys each with names connected to counts that those names came up, 
         # send it through to make graphs out of it
+        print(counts)
         sm_res = smallmultiples(counts)
 
     with t1:
